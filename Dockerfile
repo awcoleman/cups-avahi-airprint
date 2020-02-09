@@ -1,7 +1,7 @@
-FROM alpine:latest
+FROM alpine:3.10
 
 # Install the packages we need. Avahi will be included
-RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories &&\
+RUN echo "http://dl-cdn.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositories &&\
 	apk add --update cups \
 	cups-libs \
 	cups-pdf \
@@ -16,6 +16,7 @@ RUN echo "http://nl.alpinelinux.org/alpine/edge/testing" >> /etc/apk/repositorie
 	py-pip \
 	build-base \
 	wget \
+	groff \
 	rsync \
 	&& pip --no-cache-dir install --upgrade pip \
 	&& pip install pycups \
@@ -32,7 +33,10 @@ VOLUME /services
 ADD root /
 RUN chmod +x /root/*
 
-#Run Script
+# Add foo 2600n
+RUN ./root/prep_cups.sh
+
+# Run Script
 CMD ["/root/run_cups.sh"]
 
 # Baked-in config file changes
