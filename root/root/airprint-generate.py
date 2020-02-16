@@ -1,4 +1,4 @@
-#!/usr/bin/env python
+#!/usr/bin/env python3
 
 """
 Copyright (c) 2010 Timothy J Fontaine <tjfontaine@atxconsulting.com>
@@ -20,30 +20,22 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
 THE SOFTWARE.
+
+Copyright (c) 2020 Andrew Coleman <awcoleman@gmail.com> Minimaltransformation
+  to Python3.
 """
 
-import cups, os, optparse, re, urlparse
+import cups, os, optparse, re, urllib.parse
 import os.path
-from StringIO import StringIO
+from io import StringIO
 
 from xml.dom.minidom import parseString
 from xml.dom import minidom
 
 import sys
 
-try:
-    import lxml.etree as etree
-    from lxml.etree import Element, ElementTree, tostring
-except:
-    try:
-        from xml.etree.ElementTree import Element, ElementTree, tostring
-        etree = None
-    except:
-        try:
-            from elementtree import Element, ElementTree, tostring
-            etree = None
-        except:
-            raise 'Failed to find python libxml or elementtree, please install one of those or use python >= 2.5'
+import lxml.etree as etree
+from lxml.etree import Element, ElementTree, tostring
 
 XML_TEMPLATE = """<!DOCTYPE service-group SYSTEM "avahi-service.dtd">
 <service-group>
@@ -121,10 +113,10 @@ class AirPrintGenerate(object):
             
         printers = conn.getPrinters()
         
-        for p, v in printers.items():
+        for p, v in list(printers.items()):
             if v['printer-is-shared']:
                 attrs = conn.getPrinterAttributes(p)
-                uri = urlparse.urlparse(v['printer-uri-supported'])
+                uri = urllib.parse.urlparse(v['printer-uri-supported'])
 
                 tree = ElementTree()
                 tree.parse(StringIO(XML_TEMPLATE.replace('\n', '').replace('\r', '').replace('\t', '')))
@@ -218,7 +210,7 @@ class AirPrintGenerate(object):
                 if self.directory:
                     fname = os.path.join(self.directory, fname)
                 
-                f = open(fname, 'w')
+                f = open(fname, 'wb')
 
                 if etree:
                     tree.write(f, pretty_print=True, xml_declaration=True, encoding="UTF-8")

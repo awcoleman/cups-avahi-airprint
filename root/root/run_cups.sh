@@ -12,7 +12,7 @@ else
   id -u printadmin &>/dev/null || adduser -S -G lpadmin --no-create-home printadmin
   CUPSPASSWORD=$(< /dev/urandom tr -dc _A-Z-a-z-0-9 | head -c${1:-32})
   echo "printadmin:${CUPSPASSWORD}" | chpasswd
-  echo "printadmin:${CUPSPASSWORD}"
+  echo "CUPS Credentials (usually on http://localhost:631 ): USER printadmin PASS ${CUPSPASSWORD}"
 fi
 
 if [ -f /resources/savedconfig/printers.conf ]; then
@@ -21,6 +21,10 @@ if [ -f /resources/savedconfig/printers.conf ]; then
   chown -R root:root /config
   cp -r /resources/savedservices/* /services
   chown -R root:root /services
+  rm -rf /etc/avahi/services/*
+  rm -rf /etc/cups/ppd
+  ln -s /config/ppd /etc/cups
+  cp -f /services/*.service /etc/avahi/services/
 else
   echo "Using default,empty config"
   mkdir -p /config/ppd
